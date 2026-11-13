@@ -1,15 +1,8 @@
 {
-  "name": "mrapp",
-  "version": "1.0.0",
-  "lockfileVersion": 3,
-  "requires": true,
-  "description": "Mr.Speechie AAC communication app",
-  "main": "server.js",
-  "packages": {},
-  "engines": {
-    "node": ">=18"
-  },
-  "scripts": {
-    "start": "index.js"
-  }
+  "name":"mr-speechie",
+"version":"1.0.0",
+"description":"Mr.Speechie AAC communication app",
+"main":"server.js",
+"scripts":{"start":"node server.js"},
+"engines":{"node":">=18"}
 }
