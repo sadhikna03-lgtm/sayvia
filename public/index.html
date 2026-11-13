@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mr.Speechie</title>
+<style>
+:root{--bg:#fff;--soft:#FFF9D6;--ink:#17233B;--mut:#4B5873;--card:#fff;--line:#CBD5E8;--blue:#0F4AA6;--red:#E60000;--yel:#FFE83A;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0C1426;--soft:#141F38;--ink:#F2F5FC;--mut:#AEB9D3;--card:#16223F;--line:#2A3960;--blue:#6FA3FF}}
+:root[data-theme="dark"]{--bg:#0C1426;--soft:#141F38;--ink:#F2F5FC;--mut:#AEB9D3;--card:#16223F;--line:#2A3960;--blue:#6FA3FF}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,"Segoe UI",Roboto,sans-serif}
+button,select,input,textarea{font:inherit;color:var(--ink)}
+button{cursor:pointer;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:8px 12px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+button.on,button.pri{background:var(--blue);border-color:var(--blue);color:#fff}
+input,select,textarea{background:var(--card);border:2px solid var(--line);border-radius:12px;padding:8px 10px}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;padding:8px 12px;border-bottom:2px solid var(--line)}
+.top,.bar,.tabs{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.bar,.tabs{margin-top:8px}
+.logo{font-size:1.3rem}.logo i{color:var(--red);font-style:normal}.logo u{text-decoration:none;color:#C9A800}
+#badge,#trial{font-size:.8rem;color:var(--mut)}
+#q{flex:1;min-width:120px}#sent{flex:1;min-width:180px;font-size:1.2rem}
+.al{border-color:var(--red);color:var(--red);font-weight:700}.ms{border-color:#C9A800;font-weight:700}
+main{padding:12px;max-width:1100px;margin:0 auto}
+.crumb{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:repeat(var(--c),minmax(0,1fr));gap:10px}
+.tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:110px;padding:8px;border:3px solid rgba(0,0,0,.3);border-radius:18px;color:#17233B;text-align:center;transition:transform .15s}
+.tile .em{font-size:2.4rem;line-height:1}.tile b{font-size:1.1rem}.tile small{opacity:.75}.tile img{max-width:100%;max-height:70px;border-radius:8px}
+.tile.big{transform:scale(1.18);z-index:2;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+.editing .tile{border-style:dashed}.add{background:var(--card);color:var(--ink)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.chip{font-size:1.15rem;border-color:var(--blue)}
+.favs{list-style:none;padding:0;margin:0}.favs li{display:flex;gap:6px;margin-bottom:6px}.favs li button:first-child{flex:1;text-align:left}
+dialog{max-width:min(92vw,480px);width:100%;border:3px solid var(--blue);border-radius:20px;background:var(--bg);color:var(--ink);padding:18px}
+dialog::backdrop{background:rgba(0,0,0,.5)}dialog h2{margin:0 0 10px}dialog label{display:block;margin:8px 0;font-size:.9rem}dialog label>*{display:block;width:100%;margin-top:3px}
+dialog .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}dialog textarea{font-size:.8rem}
+#toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}#toast.on{opacity:1}
+#alarm{position:fixed;inset:0;display:none;align-items:center;justify-content:center;font-size:3rem;font-weight:800;color:#fff;background:var(--red);z-index:30;animation:fl .4s steps(2) infinite}#alarm.on{display:flex}
+@keyframes fl{50%{background:#7a0000}}
+#print{display:none}
+@media print{body>*:not(#print){display:none!important}#print{display:block;color:#000}#print h2{page-break-before:always}#print .grid{--c:4}}
+@media (prefers-reduced-motion:reduce){#alarm{animation:none}.tile{transition:none}}
+</style></head><body>
+<header>
+<div class="top"><b class="logo"><i>Mr.</i><u>Speechie</u></b><span id="badge"></span><span id="trial"></span>
+<select id="lang" aria-label="Language"></select><input id="q" type="search" placeholder="Search words"></div>
+<div class="top" style="margin-top:8px"><button id="alert" class="al">🚨 Alert</button><button id="mist" class="ms">✋ Mistake</button><button id="ed">✎ Edit</button><button id="menu">☰ Menu</button></div>
+<div class="bar"><input id="sent" placeholder="Tap words or type here" autocomplete="off"><button id="spk" class="pri">🔊 Speak</button><button id="bk" aria-label="Delete last word">⌫</button><button id="clr">Clear</button><button id="fav">★ Save</button><button id="shr">Share</button></div>
+<div class="tabs"><button id="tp">Picture mode</button><button id="tk">Keyboard mode</button></div>
+</header>
+<main id="view"></main><dialog id="dlg"></dialog><div id="toast" role="status"></div><div id="alarm"></div><div id="print"></div>
+<script>
+const $=id=>document.getElementById(id);
+const L={en:'English',hi:'हिन्दी',ta:'தமிழ்',te:'తెలుగు',ml:'മലയാളം',mr:'मराठी',kn:'ಕನ್ನಡ'};
+const VC={en:'en-IN',hi:'hi-IN',ta:'ta-IN',te:'te-IN',ml:'ml-IN',mr:'mr-IN',kn:'kn-IN'};
+const POS={verb:['Verb','#8FD18F'],noun:['Noun','#FFB86B'],person:['Person','#FFE45C'],desc:['Descriptor','#8EC5FF'],social:['Social','#F7A8D0'],misc:['Other','#E8EAF0'],folder:['Folder','#C9B8FF']};
+const SEED=`w_i|root|person|🙋|I|मैं|நான்|నేను|ഞാൻ|मी|ನಾನು
+w_want|root|verb|🤲|want|चाहिए|வேண்டும்|కావాలి|വേണം|हवे|ಬೇಕು
+w_go|root|verb|🚶|go|जाना|போ|వెళ్ళు|പോകുക|जा|ಹೋಗು
+w_more|root|desc|➕|more|और|மேலும்|మరింత|കൂടുതൽ|अजून|ಇನ್ನಷ್ಟು
+w_stop|root|verb|🛑|stop|रुको|நிறுத்து|ఆపు|നിർത്തുക|थांब|ನಿಲ್ಲಿಸು
+w_yes|root|social|👍|yes|हाँ|ஆம்|అవును|അതെ|हो|ಹೌದು
+w_no|root|social|👎|no|नहीं|இல்லை|లేదు|ഇല്ല|नाही|ಇಲ್ಲ
+w_help|root|social|🆘|help|मदद|உதவி|సహాయం|സഹായം|मदत|ಸಹಾಯ
+f_food|root|folder|🍚|Food|भोजन|உணவு|ఆహారం|ഭക്ഷണം|अन्न|ಆಹಾರ
+w_water|f_food|noun|💧|water|पानी|தண்ணீர்|నీరు|വെള്ളം|पाणी|ನೀರು
+w_eat|f_food|verb|🍽️|eat|खाओ|சாப்பிடு|తిను|കഴിക്കുക|खा|ತಿನ್ನು
+w_milk|f_food|noun|🥛|milk|दूध|பால்|పాలు|പാൽ|दूध|ಹಾಲು
+w_rice|f_food|noun|🍛|rice|चावल|சோறு|అన్నం|ചോറ്|भात|ಅನ್ನ
+f_feel|root|folder|😊|Feelings|भावना|உணர்வுகள்|భావాలు|വികാരങ്ങൾ|भावना|ಭಾವನೆಗಳು
+w_happy|f_feel|desc|😀|happy|खुश|மகிழ்ச்சி|సంతోషం|സന്തോഷം|आनंदी|ಖುಷಿ
+w_sad|f_feel|desc|😢|sad|उदास|சோகம்|బాధ|സങ്കടം|दुःखी|ದುಃಖ
+w_hurt|f_feel|desc|🤕|hurt|दर्द|வலி|నొప్పి|വേദന|दुखणे|ನೋವು
+w_tired|f_feel|desc|😴|tired|थका|சோர்வு|అలసట|ക്ഷീണം|थकलो|ಆಯಾಸ
+f_ppl|root|folder|👨‍👩‍👧|People|लोग|மக்கள்|మనుషులు|ആളുകൾ|माणसे|ಜನರು
+w_mom|f_ppl|person|👩|mom|माँ|அம்மா|అమ్మ|അമ്മ|आई|ಅಮ್ಮ
+w_dad|f_ppl|person|👨|dad|पापा|அப்பா|నాన్న|അച്ഛൻ|बाबा|ಅಪ್ಪ
+w_teach|f_ppl|person|🧑‍🏫|teacher|शिक्षक|ஆசிரியர்|ఉపాధ్యాయుడు|അധ്യാപകൻ|शिक्षक|ಶಿಕ್ಷಕ`;
+const seed=()=>({items:SEED.split('\n').map(l=>{const p=l.split('|'),label={};Object.keys(L).forEach((k,i)=>label[k]=p[4+i]);return{id:p[0],parent:p[1],type:p[2]==='folder'?'folder':'word',pos:p[2],emoji:p[3],label}}),fav:[],hist:[],set:{lang:'en',alpha:false,pics:true,pw:'',bk:0,last:0},cols:{root:4},trial:Date.now(),plan:''});
+// ---- storage: Node backend first, browser storage as fallback ----
+const U=(()=>{try{let u=localStorage.getItem('ms_user');if(!u){u='u'+Math.random().toString(36).slice(2,10);localStorage.setItem('ms_user',u)}return u}catch(e){return'u'+Math.random().toString(36).slice(2,10)}})();
+async function api(p,o={}){const r=await fetch('/api/'+p,{...o,headers:{'Content-Type':'application/json','X-User':U}});if(!r.ok)throw 0;return r.json()}
+const net=on=>$('badge').textContent=on?'● Server connected':'○ Offline (saved on this device)';
+const local=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
+let S,cur='root',mode='pic',edit=false,sent='',st;
+function save(){try{localStorage.setItem('ms_state',JSON.stringify(S))}catch(e){}clearTimeout(st);st=setTimeout(()=>api('state',{method:'PUT',body:JSON.stringify(S)}).then(()=>net(1)).catch(()=>net(0)),400)}
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const lab=i=>i.label[S.set.lang]||i.label.en;
+const toast=t=>{$('toast').textContent=t;$('toast').classList.add('on');setTimeout(()=>$('toast').classList.remove('on'),2200)};
+const daysLeft=()=>Math.ceil(14-(Date.now()-S.trial)/864e5);
+// ---- speech and sounds ----
+function say(t,lang){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang=VC[lang||S.set.lang];speechSynthesis.speak(u)}catch(e){}}
+let ac;function beep(f,n){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();for(let i=0;i<n;i++){const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.value=.2;o.connect(g);g.connect(ac.destination);o.start(ac.currentTime+i*.25);o.stop(ac.currentTime+i*.25+.15)}}catch(e){}}
+// ---- generic modal ----
+const dlg=$('dlg');
+function modal(title,fields=[],btns=['Save'],lock){return new Promise(res=>{
+ const h=fields.map(f=>{if(f.t==='html')return f.v;const id='f_'+f.k;let c;
+  if(f.t==='select')c=`<select id="${id}">${f.o.map(o=>`<option value="${esc(o[0])}"${String(o[0])===String(f.v)?' selected':''}>${esc(o[1])}</option>`).join('')}</select>`;
+  else if(f.t==='area')c=`<textarea id="${id}" rows="5">${esc(f.v)}</textarea>`;
+  else c=`<input id="${id}" type="${f.t||'text'}" value="${esc(f.v)}"${f.t==='range'?' min="2" max="8"':''}>`;
+  return `<label>${f.l}${c}</label>`}).join('');
+ dlg.innerHTML=`<h2>${title}</h2>${h}<div class="row">${btns.map((b,i)=>`<button data-i="${i}"${i===0&&btns.length<4?' class="pri"':''}>${b}</button>`).join('')}${lock?'':'<button data-i="x">Close</button>'}</div>`;
+ let done=false;dlg.onclose=()=>{if(!done)res(null)};
+ dlg.oncancel=e=>{if(lock)e.preventDefault()};
+ dlg.onclick=async e=>{const b=e.target.closest('button[data-i]');if(!b)return;const v={};
+  for(const f of fields){if(f.t==='html')continue;const el=dlg.querySelector('#f_'+f.k);
+   if(f.t==='file')v[f.k]=el.files[0]?await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(el.files[0])}):null;
+   else v[f.k]=f.t==='range'?+el.value:el.value}
+  done=true;dlg.close();res({i:b.dataset.i==='x'?-1:+b.dataset.i,v})};
+ dlg.showModal()})}
+// ---- data helpers ----
+const kids=p=>{const a=S.items.filter(i=>i.parent===p);if(S.set.alpha)a.sort((x,y)=>lab(x).localeCompare(lab(y)));return a};
+const byId=id=>S.items.find(i=>i.id===id);
+const path=id=>{const a=[];while(id&&id!=='root'){const f=byId(id);if(!f)break;a.unshift(f);id=f.parent}return a};
+const desc=id=>kids(id).flatMap(k=>[k,...desc(k.id)]);
+// ---- picture mode ----
+function pic(){const q=$('q').value.trim().toLowerCase();
+ const list=q?S.items.filter(i=>Object.values(i.label).some(l=>l.toLowerCase().includes(q))):kids(cur);
+ const cols=S.cols[cur]||4;
+ const crumb=q?`<div class="crumb"><small>${list.length} result(s). Path shown under each word.</small></div>`:`<div class="crumb"><button data-go="root">Home</button>${path(cur).map(f=>`<button data-go="${f.id}">${esc(lab(f))}</button>`).join('')}</div>`;
+ const tiles=list.map(i=>{const pp=path(i.parent).map(lab).join(' › ');
+  return `<button class="tile" data-id="${i.id}" style="background:${POS[i.pos]?.[1]||POS.misc[1]}">${i.gif?`<img src="${esc(i.gif)}" alt="">`:(S.set.pics?`<span class="em">${i.emoji}</span>`:'')}<b>${esc(lab(i))}</b>${S.set.lang!=='en'?`<small>${esc(i.label.en)}</small>`:''}${q&&pp?`<small>${esc('Home › '+pp)}</small>`:''}${edit?'<small>✎ edit</small>':''}</button>`}).join('');
+ const add=edit&&!q?`<button class="tile add" data-add="word"><span class="em">＋</span><b>Word</b></button><button class="tile add" data-add="folder"><span class="em">📁</span><b>Folder</b></button>`:'';
+ return `${crumb}<div class="grid${edit?' editing':''}" style="--c:${cols}">${tiles}${add}</div>`}
+function tap(id,el){const it=byId(id);if(edit)return editItem(it);
+ if(it.type==='folder'){cur=id;$('q').value='';return render()}
+ el.classList.add('big');setTimeout(()=>el.classList.remove('big'),700);
+ sent+=(sent&&!/\s$/.test(sent)?' ':'')+lab(it);$('sent').value=sent;
+ if(it.audio){try{new Audio(it.audio).play()}catch(e){}}else say(lab(it));
+ if(it.yt)window.open(it.yt,'_blank','noopener')}
+async function editItem(it,kind){const n=!it;
+ it=it||{id:'x'+Date.now().toString(36),parent:cur,type:kind,pos:kind==='folder'?'folder':'misc',emoji:kind==='folder'?'📁':'⭐',label:{}};
+ const lg=S.set.lang,w=it.type==='word';
+ const r=await modal(n?'Add '+kind:'Edit '+kind,[{k:'l',l:'Label ('+L[lg]+')',v:it.label[lg]||''},{k:'en',l:'English label',v:it.label.en||''},{k:'em',l:'Emoji picture',v:it.emoji},
+  ...(w?[{k:'pos',l:'Colour (Fitzgerald Key)',t:'select',v:it.pos,o:Object.entries(POS).filter(x=>x[0]!=='folder').map(([k,v])=>[k,v[0]])},{k:'gif',l:'GIF link (optional)',v:it.gif||''},{k:'yt',l:'YouTube link (optional)',v:it.yt||''},{k:'au',l:'Your own audio file (optional)',t:'file'}]:[]),],n?['Add']:['Save','Delete']);
+ if(!r||r.i<0)return;
+ if(r.i===1){const ids=new Set([it.id,...desc(it.id).map(x=>x.id)]);S.items=S.items.filter(x=>!ids.has(x.id));cur=byId(cur)?cur:'root';save();return render()}
+ const v=r.v;it.label[lg]=v.l||v.en||'?';it.label.en=v.en||v.l||'?';it.emoji=v.em||it.emoji;
+ if(w){it.pos=v.pos;it.gif=v.gif||'';it.yt=v.yt||'';if(v.au)it.audio=v.au}
+ if(n)S.items.push(it);save();render()}
+// ---- keyboard mode with prediction ----
+const skel=s=>s.toLowerCase().replace(/[aeiou]/g,'').replace(/(.)\1+/g,'$1');
+function pred(){const parts=sent.trim().toLowerCase().split(/\s+/).filter(Boolean),partial=sent&&!/\s$/.test(sent),last=partial?parts.pop():'',prev=parts[parts.length-1]||'';
+ const freq={};S.hist.forEach(h=>h.toLowerCase().split(/\s+/).forEach(w=>freq[w]=(freq[w]||0)+1));
+ const vocab=[...new Set([...S.items.filter(i=>i.type==='word').map(i=>lab(i).toLowerCase()),...Object.keys(freq)])].sort((a,b)=>(freq[b]||0)-(freq[a]||0));
+ if(partial){const a=vocab.filter(w=>w.startsWith(last)&&w!==last),sk=skel(last);return[...a,...vocab.filter(w=>sk&&!a.includes(w)&&skel(w).startsWith(sk))].slice(0,8)}
+ const nx={};S.hist.forEach(h=>{const w=h.toLowerCase().split(/\s+/);w.forEach((x,i)=>{if(x===prev&&w[i+1])nx[w[i+1]]=(nx[w[i+1]]||0)+1})});
+ return[...Object.keys(nx).sort((a,b)=>nx[b]-nx[a]),...vocab.filter(w=>!nx[w])].slice(0,8)}
+const phr=()=>{const t=sent.trim().toLowerCase();return t?S.hist.filter(h=>h.toLowerCase().startsWith(t)&&h.length>t.length).slice(0,3):[]};
+function kb(){const p=pred(),ph=phr();
+ return `<div class="chips">${p.map(w=>`<button class="chip" data-w="${esc(w)}">${esc(w)}</button>`).join('')||'<small>Start typing to see predictions</small>'}</div>${ph.length?`<h3>Phrases</h3><div class="chips">${ph.map(w=>`<button class="chip" data-p="${esc(w)}">${esc(w)}</button>`).join('')}</div>`:''}<h3>Favourites</h3><ul class="favs">${S.fav.map((f,i)=>`<li><button data-f="${i}">${esc(f)}</button><button data-d="${i}" aria-label="Remove favourite">✕</button></li>`).join('')||'<small>Save phrases with ★ Save</small>'}</ul>`}
+// ---- render ----
+function render(){
+ $('lang').innerHTML=Object.entries(L).map(([k,v])=>`<option value="${k}"${k===S.set.lang?' selected':''}>${v}</option>`).join('');
+ $('ed').classList.toggle('on',edit);$('tp').classList.toggle('on',mode==='pic');$('tk').classList.toggle('on',mode==='kb');$('sent').value=sent;
+ const d=daysLeft();$('trial').textContent=S.plan?'Plan: '+S.plan:(d>0?`Free trial: ${d} day${d>1?'s':''} left`:'Trial ended');
+ $('view').innerHTML=mode==='pic'?pic():kb()}
+const gate=async()=>{if(!S.set.pw)return true;const r=await modal('Enter password',[{k:'p',l:'Password',t:'password',v:''}],['Unlock']);if(r&&r.v.p===S.set.pw)return true;if(r)toast('Wrong password');return false};
+function speak(){const t=sent.trim();if(!t)return;say(t);S.hist=[t,...S.hist.filter(h=>h!==t)].slice(0,200);save();if(mode==='kb')render()}
+// ---- backup, restore, import/export ----
+async function backup(auto){S.set.last=Date.now();try{await api('backup',{method:'POST',body:JSON.stringify(S)});net(1);if(!auto)toast('Backed up to server')}catch(e){try{const b=local('ms_bk')||[];b.unshift(JSON.stringify(S));localStorage.setItem('ms_bk',JSON.stringify(b.slice(0,3)));if(!auto)toast('Backed up on this device')}catch(x){toast('Backup failed')}}save()}
+setInterval(()=>{if(S&&S.set.bk&&Date.now()-S.set.last>=S.set.bk*60000)backup(true)},30000);
+const load=o=>{if(!o||!Array.isArray(o.items))return toast('Not a valid Mr.Speechie file');S=o;cur='root';save();render();toast('Vocabulary restored')};
+async function restore(){let names=[];try{names=(await api('backups')).names}catch(e){names=(local('ms_bk')||[]).map((_,i)=>'local '+(i+1))}
+ if(!names.length)return toast('No backups yet');const r=await modal('Restore backup',[],names);if(!r||r.i<0)return;
+ try{load(await api('restore?name='+encodeURIComponent(names[r.i])))}catch(e){load(JSON.parse((local('ms_bk')||[])[r.i]))}}
+function exportFile(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'}));a.download='mr-speechie-backup.json';a.click();toast('Saved. Upload it to Google Drive or any cloud you prefer.')}
+async function shareFolder(){const ids=desc(cur),code=JSON.stringify({name:cur,root:cur,items:ids});
+ const r=await modal('Share folder with a Mr.Speechie user',[{k:'c',l:'Code for this folder (copy it) or paste a friend\'s code to import',t:'area',v:cur==='root'?'':code}],['Copy code','Import pasted code']);if(!r||r.i<0)return;
+ if(r.i===0){try{await navigator.clipboard.writeText(code);toast('Copied')}catch(e){toast('Select the text and copy it')}return}
+ try{const d=JSON.parse(r.v.c),m={};d.items.forEach(i=>m[i.id]='i'+Math.random().toString(36).slice(2,8));
+  d.items.forEach(i=>{S.items.push({...i,id:m[i.id],parent:i.parent===d.root?cur:(m[i.parent]||cur)})});save();render();toast('Folder imported')}catch(e){toast('That code is not valid')}}
+function printBook(){const f=[{id:'root',label:{en:'Home'}},...S.items.filter(i=>i.type==='folder')];
+ $('print').innerHTML=f.map(x=>`<h2>${esc(x.id==='root'?'Home':path(x.id).map(lab).join(' › '))}</h2><div class="grid" style="--c:${S.cols[x.id]||4}">${kids(x.id).map(i=>`<div class="tile" style="background:${POS[i.pos]?.[1]||'#eee'}"><span class="em">${i.emoji}</span><b>${esc(lab(i))}</b></div>`).join('')}</div>`).join('');
+ try{window.print()}catch(e){toast('Printing is not available here')}}
+// ---- menu and dialogs ----
+const FAQ=`<details><summary>Who is Mr.Speechie for?</summary><p>Anyone with a speech delay or difficulty, including Autism, Cerebral Palsy, Down Syndrome, Aphasia and Apraxia.</p></details><details><summary>How do I add my own words?</summary><p>Turn on Edit, then tap Word or Folder. You can add a GIF, a YouTube link or your own audio.</p></details><details><summary>How do I keep my vocabulary safe?</summary><p>Menu, Settings, pick an auto-backup interval. You can also export a file and save it to Google Drive.</p></details>`;
+async function menu(){const M=['Settings','Back up now','Restore backup','Export file','Import file','Share folder','Print book','Help and support','Teletherapy','Plans'];
+ const r=await modal('Menu',[],M);if(!r||r.i<0)return;const m=M[r.i];
+ if(m==='Settings'){if(!await gate())return;
+  const x=await modal('Settings',[{k:'alpha',l:'Order words',t:'select',v:S.set.alpha?1:0,o:[[0,'As arranged'],[1,'Alphabetical']]},{k:'pics',l:'Pictures',t:'select',v:S.set.pics?1:0,o:[[1,'Show'],[0,'Hide (advanced users)']]},{k:'cols',l:'Pictures per row in this folder: '+(S.cols[cur]||4),t:'range',v:S.cols[cur]||4},{k:'bk',l:'Auto-backup',t:'select',v:S.set.bk,o:[[0,'Off'],[15,'Every 15 minutes'],[60,'Every hour'],[1440,'Every day'],[10080,'Every week']]},{k:'pw',l:'Password for Settings and Edit (leave blank for none)',v:S.set.pw}]);
+  if(x){S.set.alpha=x.v.alpha==1;S.set.pics=x.v.pics==1;S.cols[cur]=x.v.cols;S.set.bk=+x.v.bk;S.set.pw=x.v.pw;save();render()}}
+ else if(m==='Back up now')backup();else if(m==='Restore backup')restore();else if(m==='Export file')exportFile();
+ else if(m==='Import file'){const x=await modal('Import backup file',[{k:'f',l:'Choose a backup file',t:'file'}],['Import']);if(x&&x.v.f){try{load(JSON.parse(decodeURIComponent(escape(atob(x.v.f.split(',')[1])))))}catch(e){toast('Could not read that file')}}}
+ else if(m==='Share folder')shareFolder();else if(m==='Print book')printBook();
+ else if(m==='Help and support'){const x=await modal('Help and support',[{t:'html',v:FAQ},{k:'n',l:'Your name',v:''},{k:'m',l:'Message to the support desk',t:'area',v:''}],['Send message']);if(x&&x.v.m)send('support',x.v)}
+ else if(m==='Teletherapy'){const x=await modal('Book a Teletherapy session',[{k:'n',l:'Name',v:''},{k:'c',l:'Phone or email',v:''},{k:'d',l:'Preferred date and time',t:'datetime-local',v:''},{k:'m',l:'What would you like help with?',t:'area',v:''}],['Request session']);if(x&&x.v.n)send('teletherapy',x.v)}
+ else if(m==='Plans')plans(false)}
+async function send(route,data){try{await api(route,{method:'POST',body:JSON.stringify(data)});toast('Sent. We will get back to you.')}catch(e){toast('Server offline. Please try again later.')}}
+async function plans(lock){const d=daysLeft(),r=await modal(S.plan?'Your plan: '+S.plan:(d>0?`Free trial: ${d} days left`:'Your free trial has ended'),[{t:'html',v:'<p>Choose a plan to keep every feature. No card is needed during the trial.</p><p><small>Payment gateway is not connected in this build, so choosing a plan only records your choice.</small></p>'}],['Monthly','Yearly','Lifetime'],lock);
+ if(r&&r.i>=0){S.plan=['Monthly','Yearly','Lifetime'][r.i];save();send('subscribe',{plan:S.plan});render()}else if(lock)plans(true)}
+// ---- events ----
+$('view').onclick=e=>{const t=e.target.closest('.tile[data-id]');if(t)return tap(t.dataset.id,t);
+ const g=e.target.closest('[data-go]');if(g){cur=g.dataset.go;$('q').value='';return render()}
+ const a=e.target.closest('[data-add]');if(a)return editItem(null,a.dataset.add);
+ const w=e.target.closest('[data-w]');if(w){const p=sent.trimEnd().split(/\s+/);if(sent&&!/\s$/.test(sent))p.pop();sent=(p.join(' ')+' '+w.dataset.w+' ').trimStart();return render()}
+ const p=e.target.closest('[data-p]');if(p){sent=p.dataset.p;return render()}
+ const f=e.target.closest('[data-f]');if(f){sent=S.fav[f.dataset.f];render();return speak()}
+ const d=e.target.closest('[data-d]');if(d){S.fav.splice(d.dataset.d,1);save();render()}};
+$('sent').oninput=e=>{sent=e.target.value;if(mode==='kb')$('view').innerHTML=kb()};
+$('q').oninput=()=>{if(mode==='pic')$('view').innerHTML=pic()};
+$('lang').onchange=e=>{S.set.lang=e.target.value;save();render()};
+$('spk').onclick=speak;$('clr').onclick=()=>{sent='';render()};
+$('bk').onclick=()=>{sent=sent.trimEnd().split(/\s+/).slice(0,-1).join(' ');render()};
+$('fav').onclick=()=>{const t=sent.trim();if(t&&!S.fav.includes(t)){S.fav.unshift(t);save();toast('Saved to favourites');if(mode==='kb')render()}};
+$('shr').onclick=async()=>{const t=sent.trim();if(!t)return;if(navigator.share){try{return await navigator.share({text:t})}catch(e){}}
+ const r=await modal('Share message',[{t:'html',v:'<p>'+esc(t)+'</p>'}],['Email','WhatsApp','Copy']);if(!r||r.i<0)return;
+ if(r.i===0)location.href='mailto:?subject=Message from Mr.Speechie&body='+encodeURIComponent(t);else if(r.i===1)window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank','noopener');else{try{await navigator.clipboard.writeText(t);toast('Copied')}catch(e){}}};
+$('tp').onclick=()=>{mode='pic';render()};$('tk').onclick=()=>{mode='kb';render();$('sent').focus()};
+$('alert').onclick=()=>{beep(880,6);$('alarm').textContent='🚨 ALERT: please help';$('alarm').classList.add('on');setTimeout(()=>$('alarm').classList.remove('on'),2500)};
+$('mist').onclick=()=>{beep(220,2);sent=sent.trimEnd().split(/\s+/).slice(0,-1).join(' ');render();toast('Mistake: last word removed. Caregiver notified.')};
+$('ed').onclick=async()=>{if(!edit&&!await gate())return;edit=!edit;render()};
+$('menu').onclick=menu;
+(async()=>{try{const r=await api('state');if(r&&r.items){S=r}else{S=local('ms_state')||seed();net(1);save()}net(1)}catch(e){S=local('ms_state')||seed();net(0)}
+ render();if(!S.plan&&daysLeft()<=0)plans(true)})();
+</script></body></html>
